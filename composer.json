@@ -1,0 +1,25 @@
+{
+    "name": "ttmdear/rumi",
+    "description": "PHP Active Record",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ttmdear",
+            "email": "ttmdear@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Rumi\\": "src/Rumi"
+        },
+        "files": [
+            "src/Rumi/functions.php"
+        ]
+    },
+    "require": {
+        "ttmdear/labi" : "dev-master",
+        "webmozart/assert": "^1.2"
+    }
+}
