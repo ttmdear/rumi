@@ -11,16 +11,21 @@ require_once __DIR__."/bookstore/src/BookSearcher.php";
 $adapters = new \Rumi\Adapters\AdaptersPool(array(
     array(
         'name' => 'bookstore',
-        'adapter' => 'mysql',
-        'dbname' => 'bookstore',
+        'adapter' => 'sqlite',
+        'path' => './bookstore.sqlite'
+    ),
+    // array(
+    //     'name' => 'bookstore',
+    //     'adapter' => 'mysql',
+    //     'dbname' => 'bookstore',
 
-        'host' => '192.168.10.115',
-        'username' => 'user',
-        // 'host' => 'localhost',
-        // 'username' => 'root',
-        'password' => '',
-        'charset' => 'utf8'
-    )
+    //     // 'host' => '192.168.10.115',
+    //     // 'username' => 'user',
+    //     'host' => 'localhost',
+    //     'username' => 'root',
+    //     'password' => '',
+    //     'charset' => 'utf8'
+    // )
 ));
 
 \Rumi\Orm\Record::adapters($adapters);

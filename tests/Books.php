@@ -1,6 +1,10 @@
 <?php
 require __DIR__."/../vendor/autoload.php";
 
+$adapter = new \Rumi\Adapters\Sqlite\Adapter('bookstore', array(
+    'path' => './bookstore.sqlite'
+));
+
 $adaptersPool = new \Rumi\Adapters\AdaptersPool(array(
     array(
         'name' => 'bookstore',

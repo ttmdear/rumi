@@ -20,12 +20,16 @@ class AdapterTest extends \Rumi\Tests\TestCase
 
         $bookstore = self::adapter('bookstore');
 
-        $bookstore->execute('call createBooks(:num)', array(
-            'num' => 10
-        ));
+        if ($bookstore instanceof \Rumi\Adapters\Mysql\Adapter) {
+            $bookstore->execute('call createBooks(:num)', array(
+                'num' => 10
+            ));
 
-        $num = Book::searcher()->all()->count();
-        $this->assertEquals(20, $num);
+            $num = Book::searcher()->all()->count();
+            $this->assertEquals(20, $num);
+        }else{
+            return;
+        }
     }
 
     public function testFetch()

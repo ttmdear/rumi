@@ -36,7 +36,6 @@ class AdaptersPool
         }
 
         $config = $this->configs[$name];
-
         $factory = new AdapterFactory();
 
         return $this->adapters[$name] = $factory->create($config);

@@ -22,7 +22,12 @@ class TestCase extends \PHPUnit_Framework_TestCase
     public function reset()
     {
         $bookstore = self::$adapters->get('bookstore');
-        $bookstore->execute(file_get_contents(__DIR__."./bookstore/doc/bookstore.sql"));
+
+        if ($bookstore instanceof \Rumi\Adapters\Sqlite\Adapter) {
+            $bookstore->execute(file_get_contents(__DIR__."./bookstore/doc/bookstore-sqlite.sql"));
+        }elseif($bookstore instanceof \Rumi\Adapters\Mysql\Adapter){
+            $bookstore->execute(file_get_contents(__DIR__."./bookstore/doc/bookstore-mysql.sql"));
+        }
     }
 
     public function assertRows($ids, $rows, $table = 'books')

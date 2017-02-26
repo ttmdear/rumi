@@ -11,7 +11,7 @@ namespace Rumi\Adapters;
 
 abstract class AdapterAbstract implements \Rumi\Adapters\AdapterInterface
 {
-    protected $records = array();
+    private $records = array();
 
     function __construct()
     {

@@ -59,6 +59,7 @@ class RecordTest extends \Rumi\Tests\TestCase
     {
         $this->reset();
 
+        define('debug', 1);
         $books = Book::searcher();
         $books->id(array(
             'idBook' => 1

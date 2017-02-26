@@ -27,6 +27,8 @@ class AdapterFactory
         switch ($adapter) {
         case 'mysql':
             return new \Rumi\Adapters\Mysql\Adapter($name, $config);
+        case 'sqlite':
+            return new \Rumi\Adapters\Sqlite\Adapter($name, $config);
         default:
             throw new \Exception("Not supported adapter {$adapter}.");
             break;
