@@ -22,7 +22,7 @@ class Record extends \Rumi\Orm\Record
             $adapter->create($target, $this->data(true));
 
             if (count($definition->pk()) === 1 && !is_null($autoincrement)) {
-                if (is_null($this->get($autoincrement))) {
+                if (!$this->defined($autoincrement)) {
                     $lastId = $this->lastInsertId();
                     $this->set($autoincrement, $lastId);
                 }

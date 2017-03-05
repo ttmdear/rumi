@@ -3,7 +3,7 @@ require_once __DIR__."/../vendor/autoload.php";
 
 require_once __DIR__."/TestCase.php";
 
-switch ('mysql') {
+switch ('sqlite') {
 case 'mysql':
     require_once __DIR__."/bookstore/src/Book-mysql.php";
     require_once __DIR__."/bookstore/src/BookSearcher-mysql.php";
