@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Rumi\Adapters\Sqlite;
+namespace Rumi\Adapters\Pgsql;
 
 class Record extends \Rumi\Orm\Record
 {
@@ -21,10 +21,14 @@ class Record extends \Rumi\Orm\Record
         if ($this->stateIs(\Rumi\Orm\RecordInterface::STATE_NEW)) {
             $adapter->create($target, $this->data(true));
 
-            if (count($definition->pk()) === 1 && !is_null($autoincrement)) {
-                if (is_null($this->get($autoincrement))) {
-                    $lastId = $this->lastInsertId();
-                    $this->set($autoincrement, $lastId);
+            $autoincrement = $definition->autoincrement();
+
+            foreach ($definition->pk() as $pk) {
+                if (array_key_exists($pk, $autoincrement)) {
+                    if (!$this->defined($pk)) {
+                        $lastId = $this->lastInsertId($autoincrement[$pk], $pk);
+                        $this->set($pk, $lastId);
+                    }
                 }
             }
         }else{
@@ -40,17 +44,24 @@ class Record extends \Rumi\Orm\Record
 
     public static function definitionClass()
     {
-        return \Rumi\Adapters\Sqlite\Definition::class;
+        return \Rumi\Adapters\Pgsql\Definition::class;
     }
 
-    public function lastInsertId()
+    private function lastInsertId($autoincrement, $column)
     {
-        $result = $this->adapter()->fetch('select last_insert_rowid() as lastInsertId');
+        $sequence = $autoincrement['sequence'];
+        $adapter = $this->adapter();
 
-        if (empty($result)) {
-            return null;
+        if (is_null($sequence)) {
+            $target = $this->target();
+
+            $rows =  $adapter->fetch("select currval(pg_get_serial_sequence('$target', '$column')) as newid");
+
+            return $rows[0]['newid'];
         }
 
-        return $result[0]['lastInsertId'];
+        $rows =  $adapter->fetch("select currval('$sequence') as newId");
+
+        return $rows[0]['newId'];
     }
 }

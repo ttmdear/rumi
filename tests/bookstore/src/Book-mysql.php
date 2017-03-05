@@ -9,16 +9,13 @@ class Book extends \Rumi\Adapters\Mysql\Record
         'definition' => array(
             'idBook' => array(
                 'pk',
-                'autoincrement',
-                'default' => null,
+                'autoincrement'
             ),
-            'name' => array(),
-            'idCategory' => array(
-                'default' => null,
-            ),
-            'releaseDate' => array(),
-            'releaseDatetime' => array(),
-            'price' => array(),
+            'name',
+            'idCategory',
+            'releaseDate',
+            'releaseDatetime',
+            'price',
         )
     );
 
@@ -42,4 +39,3 @@ class Book extends \Rumi\Adapters\Mysql\Record
         }
     }
 }
-

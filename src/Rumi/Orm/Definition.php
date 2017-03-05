@@ -15,7 +15,21 @@ class Definition
 
     function __construct($definition)
     {
-        $this->definition = $definition;
+        $tmpdefinition = array();
+
+        foreach ($definition as $column => $cdefinition) {
+            if (is_int($column)) {
+                $tmpdefinition[$cdefinition] = array();
+            }else{
+                if (!is_array($cdefinition)) {
+                    throw new \Exception(sprintf("Definition for %s column should be array.", $column));
+                }
+
+                $tmpdefinition[$column] = $cdefinition;
+            }
+        }
+
+        $this->definition = $tmpdefinition;
     }
 
     public function pk()
@@ -31,17 +45,11 @@ class Definition
         return $pk;
     }
 
-    public function columns($extends = true)
+    public function columns()
     {
         $columns = array();
 
         foreach ($this->definition as $column => $definition) {
-            if (!$extends) {
-                if (in_array('extends', $definition)) {
-                    continue;
-                }
-            }
-
             $columns[] = $column;
         }
 
@@ -52,7 +60,7 @@ class Definition
     {
         if (!array_key_exists($column, $this->definition)) {
             // sprawdzam czy kolumna jest zdefiniowana
-            throw new \Exception(printf("Column %s is not defined.", $column));
+            throw new \Exception(sprintf("Column %s is not defined.", $column));
         }
 
         return $this->definition[$column];
@@ -61,7 +69,7 @@ class Definition
     public function defaultValue($column)
     {
         if (!$this->hasDefault($column)) {
-            throw new \Exception(printf("No default value for %s.", $column));
+            throw new \Exception(sprintf("No default value for %s.", $column));
         }
 
         $column = $this->column($column);

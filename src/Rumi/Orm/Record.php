@@ -9,14 +9,30 @@
  */
 namespace Rumi\Orm;
 
-use Rumi\Orm\RecordInterface;
-use Rumi\Orm\Definition;
-use Rumi\Orm\SearcherInterface;
-
-abstract class Record implements RecordInterface, \ArrayAccess
+abstract class Record implements
+    \Rumi\Orm\RecordInterface,
+    \ArrayAccess,
+    \JsonSerializable
 {
     abstract public function save();
 
+    /**
+     * protected static $metadata = array(
+     *     'source' => 'bookstore',
+     *     'target' => 'books',
+     *     'definition' => array(
+     *         'idBook' => array(
+     *             'pk',
+     *             'autoincrement'
+     *         ),
+     *         'name',
+     *         'idCategory',
+     *         'releaseDate',
+     *         'releaseDatetime',
+     *         'price',
+     *     )
+     * );
+     */
     protected static $metadata = null;
 
     private static $adapters = null;
@@ -28,20 +44,24 @@ abstract class Record implements RecordInterface, \ArrayAccess
     private $mdata = array();
     private $state;
 
+    /**
+     * Referencja do searchera z kolekcji ktora zaiinicjowala Record.
+     * @var \Rumi\Orm\SearcherInterface
+     */
     private $searcher;
+
+    /**
+     * Referencja do obiektu searchera ktory pobiera record.
+     * @var \Rumi\Orm\SearcherInterface
+     */
     private $rsearcher = null;
 
-    public function __construct(
-        $readMetadata = true,
-        \Rumi\Adapters\AdapterInterface $adapter = null,
-        $target = null,
-        Definition $definition = null,
-        SearcherInterface $searcher = null
-    ) {
+    public function __construct($readMetadata = true, \Rumi\Adapters\AdapterInterface $adapter = null, $target = null, \Rumi\Orm\Definition $definition = null, \Rumi\Orm\SearcherInterface $searcher = null) {
         if ($readMetadata) {
             // inicjuje record na postawie informacji z metadanych
             $metadata = static::metadata();
 
+            // pobieram adapter na postawie nazwy zrodla
             $adapter = static::adapters()->get($metadata->source());
 
             $this->adapter = $adapter;
@@ -59,7 +79,13 @@ abstract class Record implements RecordInterface, \ArrayAccess
         }
 
         // ustawiam stan jako nowy
-        $this->state(RecordInterface::STATE_NEW);
+        $this->state(\Rumi\Orm\RecordInterface::STATE_NEW);
+
+        $this->prepare();
+
+        // wczytanie pustego nowego wiersza z pustymi danymi, uzytkownikowi
+        // zostawiam kwestie wprowadzenia danych
+        $this->load(array());
     }
 
     public static function searcher()
@@ -70,7 +96,7 @@ abstract class Record implements RecordInterface, \ArrayAccess
         $adapters = static::adapters();
         $adapter = $adapters->get($metadata->source());
 
-        $searcher = $adapter->searcher($metadata->searcherClass());
+        $searcher = $adapter->searcher(static::searcherClass());
         $searcher->recordClass(static::class);
 
         $searcher->target($metadata->target());
@@ -86,11 +112,36 @@ abstract class Record implements RecordInterface, \ArrayAccess
         return $searcher;
     }
 
+    public static function definitionClass()
+    {
+        return \Rumi\Orm\Definition::class;
+    }
+
+    public static function searcherClass()
+    {
+        return null;
+    }
+
+    public static function metadata()
+    {
+        return new \Rumi\Orm\Metadata(
+            static::class,
+            static::definitionClass(),
+            static::$metadata
+        );
+    }
+
+    /**
+     * Metoda ustawia AdaptersPool z dla recordu.
+     *
+     * @param \Rumi\Adapters\AdaptersPool
+     * @return null|\Rumi\Adapters\AdaptersPool
+     */
     public static function adapters($adapters = null)
     {
         if (is_null($adapters)) {
             if (is_null(self::$adapters)) {
-                throw new \Exception(printf("There are no adapters, use Record\:\:adapters() to set AdaptersPool."));
+                throw new \Exception(sprintf("There are no adapters, use Record\:\:adapters() to set AdaptersPool."));
             }
 
             return self::$adapters;
@@ -99,35 +150,20 @@ abstract class Record implements RecordInterface, \ArrayAccess
         static::$adapters = $adapters;
     }
 
-    public static function metadata()
-    {
-        return new \Rumi\Orm\Metadata(static::class, static::definitionClass(), static::$metadata);
-    }
-
-    public static function extendSearcher(SearcherInterface $searcher)
+    public static function extendSearcher(\Rumi\Orm\SearcherInterface $searcher)
     {
         return $searcher;
     }
 
-    // + magic
-    public function __isset($name)
+    public function prepare()
     {
-        if (array_key_exists($column, $this->data)) {
-            return true;
-        }
 
-        if (!$this->definition->isDefined($column)) {
-            // kolumna nie jest zdefiniowania
-            return false;
-        }
+    }
 
-        if (!$this->definition->hasDefault($column)) {
-            // kolumna jest zdefiniowana ale nie posiada wartosci default
-            return false;
-        }
-
-        // kolmna jest zdefiniowana i posiada wartosc default, czyli istnieje
-        return true;
+    // + magic
+    public function __isset($column)
+    {
+        return $this->defined($column);
     }
 
     public function __unset($name)
@@ -143,6 +179,7 @@ abstract class Record implements RecordInterface, \ArrayAccess
         }
 
         $this->adapter = $adapter;
+
         return $this;
     }
 
@@ -153,6 +190,7 @@ abstract class Record implements RecordInterface, \ArrayAccess
         }
 
         $this->target = $target;
+
         return $this;
     }
 
@@ -163,20 +201,16 @@ abstract class Record implements RecordInterface, \ArrayAccess
         }
 
         $this->definition = $definition;
-        return $this;
-    }
 
-    public static function definitionClass()
-    {
-        return Definition::class;
+        return $this;
     }
 
     public function set($name, $value)
     {
         $this->data[$name] = $value;
 
-        if (!$this->stateIs(RecordInterface::STATE_NEW)) {
-            $this->state(RecordInterface::STATE_MODYFIED);
+        if (!$this->stateIs(\Rumi\Orm\RecordInterface::STATE_NEW)) {
+            $this->state(\Rumi\Orm\RecordInterface::STATE_MODYFIED);
         }
 
         return $this;
@@ -184,25 +218,18 @@ abstract class Record implements RecordInterface, \ArrayAccess
 
     public function compareTo(\Rumi\Orm\RecordInterface $record, $column = null)
     {
-        throw new \Exception(printf("Comparable is not supported for %s", static::class));
+        throw new \Exception(sprintf("Comparable is not supported for %s", static::class));
     }
 
     public function get($column)
     {
-        if (array_key_exists($column, $this->data)) {
+        // if (array_key_exists($column, $this->data)) {
+        if (isset($this[$column])) {
             // pole jest zdefiniowane, wiec zwracam zwracam bezposrednio dane
             return $this->data[$column];
         }
 
-        if (!$this->definition->isDefined($column)) {
-            throw new \Exception(printf("Column %s is not defined.", $column));
-        }
-
-        if (!$this->definition->hasDefault($column)) {
-            throw new \Exception(printf("Column %s is not set and do not have default value.", $column));
-        }
-
-        return $this->definition->defaultValue($column);
+        throw new \Exception(sprintf("Column %s is not defined.", $column));
     }
 
     public function defined($column)
@@ -211,23 +238,14 @@ abstract class Record implements RecordInterface, \ArrayAccess
             return true;
         }
 
-        if (!$this->definition->isDefined($column)) {
-            // kolumna nie jest zdefiniowania
-            return false;
-        }
-
-        if (!$this->definition->hasDefault($column)) {
-            // kolumna jest zdefiniowana ale nie posiada wartosci default
-            return false;
-        }
-
-        // kolmna jest zdefiniowana i posiada wartosc default, czyli istnieje
-        return true;
+        return false;
     }
 
     public function unsetColumn($column)
     {
+        unset($this->data[$column]);
 
+        return $this;
     }
 
     public function data($definition = false)
@@ -239,20 +257,22 @@ abstract class Record implements RecordInterface, \ArrayAccess
         $tmpdata = array();
 
         // pobieram tylko kolumny z definicji
-        $defColumns = $this->definition->columns(false);
+        $dcolumns = $this->definition->columns();
 
         // lacze kolumny z definicji z kolumnami podanymi
-        $columns = array_unique(array_merge($defColumns, $columns));
+        $columns = array_unique(array_merge($dcolumns, $columns));
 
         foreach ($columns as $column) {
             if ($definition) {
-                if (!in_array($column, $defColumns)) {
+                if (!in_array($column, $dcolumns)) {
                     continue;
                 }
             }
 
-            // metoda get ostatecznie zwraca wartosc
-            $tmpdata[$column] = $this->get($column);
+            if ($this->defined($column)) {
+                // dodaje tylko te kolumny ktore sa zdefiniowane
+                $tmpdata[$column] = $this->get($column);
+            }
         }
 
         return $tmpdata;
@@ -271,20 +291,23 @@ abstract class Record implements RecordInterface, \ArrayAccess
 
     public function remove()
     {
-        if ($this->stateIs(RecordInterface::STATE_NEW)) {
+        if ($this->stateIs(\Rumi\Orm\RecordInterface::STATE_NEW)) {
+            // jak record jest nowy to nie ma co usuwac
             return $this;
         }
 
+        // usuwam
         $this->adapter->remove($this->target, $this->id());
 
-        $this->state(RecordInterface::STATE_NEW);
+        // ustawiam stan jako nowy
+        $this->state(\Rumi\Orm\RecordInterface::STATE_NEW);
 
         return $this;
     }
 
     public function reload()
     {
-        if ($this->stateIs(RecordInterface::STATE_NEW)) {
+        if ($this->stateIs(\Rumi\Orm\RecordInterface::STATE_NEW)) {
             // nie ma potrzeby przeladowania nowego wiersza, nie ma czym go
             // przeladowac
             return $this;
@@ -308,6 +331,9 @@ abstract class Record implements RecordInterface, \ArrayAccess
         // wczytuje dane do obiektu
         $this->load($data[0]);
 
+        // po przeladowaniu ustawiam flage ze wiersz jest synchronizowany
+        $this->state(\Rumi\Orm\RecordInterface::STATE_SYNCED);
+
         return $this;
     }
 
@@ -315,8 +341,6 @@ abstract class Record implements RecordInterface, \ArrayAccess
     {
         // wczytuje dane podstawowe
         $this->data = $data;
-
-        $this->state(RecordInterface::STATE_SYNCED);
 
         return $this;
     }
@@ -370,4 +394,42 @@ abstract class Record implements RecordInterface, \ArrayAccess
         throw new \Exception("{$column} is not defined.");
     }
     // - ArrayAccess
+
+    // + export
+    protected function export()
+    {
+        return $this->data();
+    }
+
+    public function toArray()
+    {
+        return $this->export();
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toJson();
+    }
+
+    public function toJson()
+    {
+        $encoded = json_encode($this->export());
+
+        if ($encoded === false) {
+            throw new \Exception("Can not create json.");
+        }
+
+        return $encoded;
+    }
+
+    public function toSql()
+    {
+        if (is_null($this->rsearcher)) {
+            // tworzymy obiekt searcher dla recordu
+            $this->rsearcher = clone($this->searcher);
+            $this->rsearcher->id($this->id());
+        }
+
+        return $this->rsearcher->toSql();
+    }
 }

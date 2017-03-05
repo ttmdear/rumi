@@ -114,7 +114,11 @@ class Collection implements \IteratorAggregate, \Countable
                 $this->searcher
             );
 
+            // wczutanie danych rekordu
             $recordin->load($record);
+
+            // po wczytaniu danych, ustawiamy ze rekord jest synchronizowany
+            $recordin->state(\Rumi\Orm\RecordInterface::STATE_SYNCED);
         }
 
         // rejestruje uzycie encji w adapterze
@@ -264,7 +268,7 @@ class Collection implements \IteratorAggregate, \Countable
             }elseif(is_callable($columns)){
                 $index = call_user_func_array($columns, array($record));
             }else{
-                throw new \Exception(printf("Invalid group.", implode(',', $index)));
+                throw new \Exception(sprintf("Invalid group.", implode(',', $index)));
             }
 
             $key = md5(var_export($index, true));

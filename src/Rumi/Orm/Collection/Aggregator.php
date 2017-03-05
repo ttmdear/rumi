@@ -11,7 +11,7 @@ class Aggregator implements \IteratorAggregate
         $key = md5(var_export($index, true));
 
         if (!array_key_exists($key, $this->collections)) {
-            throw new \Exception(printf("There is no %s index at aggregator.", implode(',', $index)));
+            throw new \Exception(sprintf("There is no %s index at aggregator.", implode(',', $index)));
         }
 
         return $this->collections[$key]['collection'];

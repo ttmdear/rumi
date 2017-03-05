@@ -1,0 +1,28 @@
+1. Dorobic mechanizm buffora dla adaptera. Jesli uzytkownik chcialbym wykonac
+wiele insertow od siebie niezalznych, to otwierał by buffor, wszystkie
+zapytania wedrowaly by do buffora, a nastepnie tworzone bylo by jedno duze
+polecenie wykonujace te wszystkie inserty.
+
+2. Mechanizm tranzakcji.
+
+3. Mechanizm typowowania, dodanie mozliwosci okreslania typow danych na pola.
+To moglo by byc pobierane przez metode get z dodatkowym paramerem get($name, $typed = false)
+
+4. Mechanizm logu zmian. Np. oparty na eventach.
+
+5. Dorobic debugowanie zapytan SQL wraz z podmiana bindow.
+
+6. Gdy integrowalem sie z PostGresem to byl problem z odwolywaniem sie do
+kolumn, zawsze trzeba byla kolumne umieszczac w """, czyli np. where "idBook" =
+123.
+
+Trzeba dorobic do metod warunkowych takich jak eq, neq, in itp możliwosc
+osadzania informacji ze odwoluje sie do kolumny np.
+
+in('@imie', array(1))
+Dla metod typu in,eq,startWith itp. mozna od razu zalozyc ze pierwszym
+parametrem do tych metod jest kolumna !!!!!!
+
+lub expr('@imie in(123) OR @nazwisko :nazwisko');
+
+

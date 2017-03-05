@@ -5,6 +5,20 @@ $adapter = new \Rumi\Adapters\Sqlite\Adapter('bookstore', array(
     'path' => './bookstore.sqlite'
 ));
 
+$adapter = new \Rumi\Adapters\Pgsql\Adapter('bookstore', array(
+        'host' => 'localhost',
+        'dbname' => 'bookstore',
+        'username' => 'postgres',
+        'password' => 'admin',
+        'charset' => 'utf8'
+));
+
+$searcher = $adapter->searcher();
+$searcher->from('books');
+
+// todo : delete
+die(print_r($searcher->fetch(), true));
+// endtodo
 $adaptersPool = new \Rumi\Adapters\AdaptersPool(array(
     array(
         'name' => 'bookstore',

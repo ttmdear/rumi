@@ -14,16 +14,16 @@ class RecordTest extends \Rumi\Tests\TestCase
         $this->assertInstanceOf(RecordInterface::class, Book::searcher()->first());
     }
 
-    public function testDefaultValues()
-    {
-        $this->reset();
-
-        $book = new Book();
-
-        $this->assertEquals($book->get('idBook'), null);
-        $this->assertEquals($book->get('idCategory'), null);
-    }
-
+//     public function testDefaultValues()
+//     {
+//         $this->reset();
+//
+//         $book = new Book();
+//
+//         $this->assertEquals($book->get('idBook'), null);
+//         $this->assertEquals($book->get('idCategory'), null);
+//     }
+//
     public function testCreate()
     {
         $this->reset();
@@ -34,6 +34,7 @@ class RecordTest extends \Rumi\Tests\TestCase
         $price = 10.00;
 
         $book = new Book();
+
         $book->set('name', $name);
         $book->set('releaseDate', $releaseDate);
         $book->set('releaseDatetime', $releaseDatetime);
@@ -44,7 +45,8 @@ class RecordTest extends \Rumi\Tests\TestCase
 
         // get created row
         $books = Book::searcher();
-        $books->eq('idBook', $idBook);
+        $books->column('idBook', false)->eq($idBook);
+        // $books->eq('idBook', $idBook);
 
         $book = $books->first();
 
@@ -59,7 +61,6 @@ class RecordTest extends \Rumi\Tests\TestCase
     {
         $this->reset();
 
-        define('debug', 1);
         $books = Book::searcher();
         $books->id(array(
             'idBook' => 1

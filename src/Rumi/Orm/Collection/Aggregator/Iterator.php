@@ -65,7 +65,7 @@ class Iterator implements \SeekableIterator, \Countable
         }
 
         if(is_null($index)){
-            throw new \OutOfBoundsException(printf("Invalid seek position %s", $position));
+            throw new \OutOfBoundsException(sprintf("Invalid seek position %s", $position));
         }
 
         $this->position = $index;

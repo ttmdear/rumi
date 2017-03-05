@@ -19,11 +19,13 @@ class Record extends \Rumi\Orm\Record
         $target = $this->target();
 
         if ($this->stateIs(\Rumi\Orm\RecordInterface::STATE_NEW)) {
+
+            // pobieram tylko pola z definicji i zmodyfikowane
             $adapter->create($target, $this->data(true));
 
             if (count($definition->pk()) === 1 && !is_null($autoincrement)) {
-                if (is_null($this->get($autoincrement))) {
-                    $lastId = $adapter->lastInsertId();
+                if (!$this->defined($autoincrement)) {
+                    $lastId = $this->lastInsertId();
                     $this->set($autoincrement, $lastId);
                 }
             }
@@ -32,7 +34,7 @@ class Record extends \Rumi\Orm\Record
         }
 
         // ustawiam stan na zmodyfikowany
-        $this->state(\Rumi\Orm\RecordInterface::STATE_MODYFIED);
+        // $this->state(\Rumi\Orm\RecordInterface::STATE_MODYFIED);
 
         // odswiezam wiersz
         $this->reload();
@@ -41,5 +43,19 @@ class Record extends \Rumi\Orm\Record
     public static function definitionClass()
     {
         return \Rumi\Adapters\Mysql\Definition::class;
+    }
+
+    /**
+     * Zwraca ostatnią wartość dla AUTO_INCREMENT. Działa tylko dla Mysql.
+     */
+    private function lastInsertId()
+    {
+        $result = $this->adapter()->fetch('select LAST_INSERT_ID() as lastInsertId');
+
+        if (empty($result)) {
+            return null;
+        }
+
+        return $result[0]['lastInsertId'];
     }
 }

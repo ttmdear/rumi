@@ -9,39 +9,26 @@
  */
 namespace Rumi\Adapters\Mysql;
 
-class Adapter extends \Labi\Adapters\Mysql\Adapter implements \Rumi\Adapters\AdapterInterface
+class Adapter extends \Rumi\Adapters\AdapterAbstract
 {
-    private $recordsPool;
+    private $adapter;
 
     public function __construct($name, $config)
     {
-        parent::__construct($name, $config);
+        parent::__construct();
 
-        // Wykorzystuje klase RecordsPool do przetrzymywania instacji recordow
-        $this->recordsPool = new \Rumi\Orm\RecordsPool();
+        $this->adapter = new \Labi\Adapters\Mysql\Adapter($name, $config);
     }
 
-    // + magic
-    public function __debugInfo()
-    {
-        return array(
-            'recordsPool' => $this->recordsPool
-        );
-    }
-    // - magic
-
-    // + AdapterInterface
+    // + \Rumi\Adapters\AdapterInterface
     public function execute($command, $params = array())
     {
-        return parent::execute($command, $params);
+        return $this->adapter->execute($command, $params);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function fetch($command, $params = array())
     {
-        return parent::fetch($command, $params);
+        return $this->adapter->fetch($command, $params);
     }
 
     public function searcher($searcherClass = null)
@@ -50,9 +37,9 @@ class Adapter extends \Labi\Adapters\Mysql\Adapter implements \Rumi\Adapters\Ada
 
         if (is_null($searcherClass)) {
             // wykorzystuje standardowy searcher
-            $searcher = new \Rumi\Adapters\Mysql\Searcher($this);
+            $searcher = new \Rumi\Adapters\Mysql\Searcher($this, $this->adapter->searcher());
         } else {
-            $searcher = new $searcherClass($this);
+            $searcher = new $searcherClass($this, $this->adapter->searcher());
         }
 
         // ustawiam ze klase do obslugi record
@@ -65,7 +52,7 @@ class Adapter extends \Labi\Adapters\Mysql\Adapter implements \Rumi\Adapters\Ada
     {
         // pobieram obiekt odpowiedzialny za tworzenie nowego recordu, Labi
         // obsluguje to przez Creatora
-        $creator = $this->creator();
+        $creator = $this->adapter->creator();
 
         // // tworze nowy wiersz
         $creator
@@ -79,11 +66,11 @@ class Adapter extends \Labi\Adapters\Mysql\Adapter implements \Rumi\Adapters\Ada
 
     public function remove($target, $id)
     {
-        $remover = $this->remover();
+        $remover = $this->adapter->remover();
         $remover->table($target);
 
         foreach ($id as $column => $value) {
-            $remover->eq($column, $value);
+            $remover->column($column)->eq($value);
         }
 
         $remover->remove();
@@ -93,50 +80,18 @@ class Adapter extends \Labi\Adapters\Mysql\Adapter implements \Rumi\Adapters\Ada
 
     public function update($target, $id, $data)
     {
-        $updater = $this->updater();
+        $updater = $this->adapter->updater();
         $updater
             ->table($target)
             ->values($data);
 
         foreach ($id as $column => $value) {
-            $updater->eq($column, $value);
+            $updater->column($column)->eq($value);
         }
 
         $updater->update();
 
         return $this;
     }
-
-    public function registerRecord($target, $id, \Rumi\Orm\RecordInterface $record, $collectionId = null)
-    {
-        $this->recordsPool->registerRecord($target, $id, $record, $collectionId);
-
-        return $this;
-    }
-
-    public function findRecord($target, $id)
-    {
-        return $this->recordsPool->findRecord($target, $id);
-    }
-
-    public function unregisterUse($collectionId)
-    {
-        $this->recordsPool->unregisterUse($collectionId);
-        return $this;
-    }
-    // - AdapterInterface
-
-    /**
-     * Zwraca ostatnią wartość dla AUTO_INCREMENT. Działa tylko dla Mysql.
-     */
-    public function lastInsertId()
-    {
-        $result = $this->fetch('select LAST_INSERT_ID() as lastInsertId');
-
-        if (empty($result)) {
-            return null;
-        }
-
-        return $result[0]['lastInsertId'];
-    }
+    // - \Rumi\Adapters\AdapterInterface
 }

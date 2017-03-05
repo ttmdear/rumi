@@ -18,12 +18,24 @@ interface RecordInterface
     const STATE_MODYFIED = 3;
     const STATE_SYNCED = 4;
 
-    public static function searcher();
-    public static function definitionClass();
-    public static function metadata();
+    /**
+     * Zapisuje dane w rekordzie. Jeśli record jest nowy, to zostanie wykonane
+     * polecenie tworzenia rekordu.
+     *
+     * @return self
+     */
+    public function save();
 
+    public static function searcher();
+
+    public function adapter($adapter = null);
+    public function target($target = null);
+    public function definition($definition = null);
     public function set($name, $value);
-    public function get($name);
+    public function compareTo(\Rumi\Orm\RecordInterface $record, $column = null);
+    public function get($column);
+    public function defined($column);
+    public function unsetColumn($column);
 
     /**
      * Zwraca wszystkie dane z recordu.
@@ -33,23 +45,14 @@ interface RecordInterface
      * @return array
      */
     public function data($definition = false);
-    public function load($data);
-
-    /**
-     * Zapisuje dane w rekordzie. Jeśli record jest nowy, to zostanie wykonane
-     * polecenie tworzenia rekordu.
-     *
-     * @return self
-     */
-    public function save();
-
-    public function remove();
     public function id();
+    public function remove();
     public function reload();
-    public function adapter();
-    public function target();
-    public function definition();
-
+    public function load($data);
     public function state($state = null);
     public function stateIs($state);
+    public function toArray();
+    public function jsonSerialize();
+    public function toJson();
+    public function toSql();
 }

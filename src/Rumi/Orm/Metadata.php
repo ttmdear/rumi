@@ -19,17 +19,17 @@ class Metadata
         $this->metadata = $metadata;
 
         if (!array_key_exists('definition', $metadata)) {
-            throw new \Exception(printf("Plese define definition of columns at metadata of %s record.", $recordClass));
+            throw new \Exception(sprintf("Plese define definition of columns at metadata of %s record.", $recordClass));
         }
 
         $this->definition = new $definitionClass($metadata['definition']);
 
         if (!array_key_exists('source', $metadata)) {
-            throw new \Exception(printf("Plese define source for %s", $recordClass));
+            throw new \Exception(sprintf("Plese define source for %s", $recordClass));
         }
 
         if (!array_key_exists('target', $metadata)) {
-            throw new \Exception(printf("Please define target for %s record.", $recordClass));
+            throw new \Exception(sprintf("Please define target for %s record.", $recordClass));
         }
     }
 
@@ -46,14 +46,5 @@ class Metadata
     public function definition()
     {
         return $this->definition;
-    }
-
-    public function searcherClass()
-    {
-        if (!array_key_exists('searcherClass', $this->metadata)) {
-            return null;
-        }
-
-        return $this->metadata['searcherClass'];
     }
 }

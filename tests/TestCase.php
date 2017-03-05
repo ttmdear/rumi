@@ -27,6 +27,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
             $bookstore->execute(file_get_contents(__DIR__."/./bookstore/doc/bookstore-sqlite.sql"));
         }elseif($bookstore instanceof \Rumi\Adapters\Mysql\Adapter){
             $bookstore->execute(file_get_contents(__DIR__."/./bookstore/doc/bookstore-mysql.sql"));
+        }elseif($bookstore instanceof \Rumi\Adapters\Pgsql\Adapter){
+            $bookstore->execute(file_get_contents(__DIR__."/./bookstore/doc/bookstore-pgsql.sql"));
         }
     }
 

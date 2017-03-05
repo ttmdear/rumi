@@ -11,16 +11,17 @@ namespace Rumi\Adapters;
 
 abstract class AdapterAbstract implements \Rumi\Adapters\AdapterInterface
 {
-    private $records = array();
+    private $recordsPool;
 
-    function __construct()
+    public function __construct()
     {
-        $this->recordsPool = new RecordsPool();
+        $this->recordsPool = new \Rumi\Orm\RecordsPool();
     }
 
     public function registerRecord($target, $id, \Rumi\Orm\RecordInterface $record, $collectionId = null)
     {
         $this->recordsPool->registerRecord($target, $id, $record, $collectionId);
+
         return $this;
     }
 

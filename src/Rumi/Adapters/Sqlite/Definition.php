@@ -18,7 +18,7 @@ class Definition extends \Rumi\Orm\Definition
      */
     public function autoincrement()
     {
-        $columns = $this->columns(false);
+        $columns = $this->columns();
 
         foreach ($columns as $column) {
             $definition = $this->column($column);

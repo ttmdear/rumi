@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Rumi\Adapters\Sqlite;
+namespace Rumi\Adapters\Pgsql;
 
 class Adapter extends \Rumi\Adapters\AdapterAbstract
 {
@@ -17,8 +17,9 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
     {
         parent::__construct();
 
-        $this->adapter = new \Labi\Adapters\Sqlite\Adapter($name, $config);
+        $this->adapter = new \Labi\Adapters\Pgsql\Adapter($name, $config);
     }
+
 
     // + \Rumi\Adapters\AdapterInterface
     public function execute($command, $params = array())
@@ -37,13 +38,13 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
 
         if (is_null($searcherClass)) {
             // wykorzystuje standardowy searcher
-            $searcher = new \Rumi\Adapters\Sqlite\Searcher($this, $this->adapter->searcher());
+            $searcher = new \Rumi\Adapters\Pgsql\Searcher($this, $this->adapter->searcher());
         } else {
             $searcher = new $searcherClass($this, $this->adapter->searcher());
         }
 
         // ustawiam ze klase do obslugi record
-        $searcher->recordClass(\Rumi\Adapters\Sqlite\Record::class);
+        $searcher->recordClass(\Rumi\Adapters\Pgsql\Record::class);
 
         return $searcher;
     }
@@ -59,7 +60,8 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
             ->table($target)
             ->columns(array_keys($data))
             ->add($data)
-            ->create();
+            ->create()
+        ;
 
         return $this;
     }

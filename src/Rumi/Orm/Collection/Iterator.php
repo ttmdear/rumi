@@ -55,7 +55,7 @@ class Iterator implements \SeekableIterator, \Countable
     public function seek($position)
     {
         if($position < 0 || $position >= $this->collection->count()){
-            throw new \OutOfBoundsException(printf("Invalid seek position %s", $position));
+            throw new \OutOfBoundsException(sprintf("Invalid seek position %s", $position));
         }
 
         $this->position = $position;
