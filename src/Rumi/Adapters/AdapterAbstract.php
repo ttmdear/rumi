@@ -9,7 +9,8 @@
  */
 namespace Rumi\Adapters;
 
-abstract class AdapterAbstract implements \Rumi\Adapters\AdapterInterface
+abstract class AdapterAbstract implements
+    \Rumi\Adapters\AdapterInterface
 {
     private $recordsPool;
 

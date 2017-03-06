@@ -16,7 +16,6 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
     public function __construct($name, $config)
     {
         parent::__construct();
-
         $this->adapter = new \Labi\Adapters\Mysql\Adapter($name, $config);
     }
 
@@ -26,9 +25,9 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
         return $this->adapter->execute($command, $params);
     }
 
-    public function fetch($command, $params = array())
+    public function fetch($command, $params = array(), $options = array())
     {
-        return $this->adapter->fetch($command, $params);
+        return $this->adapter->fetch($command, $params, $options);
     }
 
     public function searcher($searcherClass = null)
@@ -59,7 +58,8 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
             ->table($target)
             ->columns(array_keys($data))
             ->add($data)
-            ->create();
+            ->create()
+        ;
 
         return $this;
     }

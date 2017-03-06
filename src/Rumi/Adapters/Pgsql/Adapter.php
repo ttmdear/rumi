@@ -16,7 +16,6 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
     public function __construct($name, $config)
     {
         parent::__construct();
-
         $this->adapter = new \Labi\Adapters\Pgsql\Adapter($name, $config);
     }
 
@@ -27,9 +26,9 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
         return $this->adapter->execute($command, $params);
     }
 
-    public function fetch($command, $params = array())
+    public function fetch($command, $params = array(), $options = array())
     {
-        return $this->adapter->fetch($command, $params);
+        return $this->adapter->fetch($command, $params, $options);
     }
 
     public function searcher($searcherClass = null)
@@ -85,7 +84,8 @@ class Adapter extends \Rumi\Adapters\AdapterAbstract
         $updater = $this->adapter->updater();
         $updater
             ->table($target)
-            ->values($data);
+            ->values($data)
+        ;
 
         foreach ($id as $column => $value) {
             $updater->column($column)->eq($value);

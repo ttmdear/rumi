@@ -19,7 +19,6 @@
         ]
     },
     "require": {
-        "ttmdear/labi" : "dev-master",
-        "webmozart/assert": "^1.2"
+        "ttmdear/labi" : "dev-master"
     }
 }

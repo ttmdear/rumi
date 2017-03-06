@@ -9,8 +9,6 @@
  */
 namespace Rumi\Adapters;
 
-use Rumi\Orm\RecordInterface;
-
 interface AdapterInterface
 {
     /**
@@ -31,7 +29,7 @@ interface AdapterInterface
      *
      * @return array
      */
-    public function fetch($command, $params = array());
+    public function fetch($command, $params = array(), $options = array());
 
     /**
      * Returns object of searcher.
@@ -79,14 +77,14 @@ interface AdapterInterface
      * @param  string                    $collectionId
      * @return self
      */
-    public function registerRecord($target, $id, RecordInterface $record, $collectionId = null);
+    public function registerRecord($target, $id, \Rumi\Orm\RecordInterface $record, $collectionId = null);
 
     /**
      * Wyszukiuje rekord wśród zarejestrowanych.
      *
      * @param  string $target
      * @param  array  $id
-     * @return null|RecordInterface
+     * @return null|\Rumi\Orm\RecordInterface
      */
     public function findRecord($target, $id);
 

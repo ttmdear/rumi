@@ -71,5 +71,5 @@ interface SearcherInterface
      * @param  array $params Parametry wywołania polecenia.
      * @return array
      */
-    public function fetch($params = array());
+    public function fetch($params = array(), $options = array());
 }

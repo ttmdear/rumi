@@ -26,3 +26,9 @@ parametrem do tych metod jest kolumna !!!!!!
 lub expr('@imie in(123) OR @nazwisko :nazwisko');
 
 
+7. Wystapil nastepujacy problem, metoda ->eq($column, $value) w RUMI nie
+potrafi przekazac obiektu \Rumi\Column poniewaz Labi\Column jest obslugiwany
+przez budowniczego zapytania.
+
+Trzeba by to jakosc rozwiazać, np. przez odwolywanie sie do kolumn przez
+@p.idWniosku itp.

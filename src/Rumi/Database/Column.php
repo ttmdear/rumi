@@ -20,6 +20,14 @@ class Column
         $this->context = $context;
     }
 
+    // + magic
+    public function __toString()
+    {
+        return $this->column->__toString();
+    }
+    // - magic
+
+
     // + \Labi\Database\Utility\Column
     public function hide()
     {

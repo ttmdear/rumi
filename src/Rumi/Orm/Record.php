@@ -328,11 +328,11 @@ abstract class Record implements
             throw new \Exception("There is no row for {$this->target} with id {$id}.");
         }
 
-        // wczytuje dane do obiektu
-        $this->load($data[0]);
-
         // po przeladowaniu ustawiam flage ze wiersz jest synchronizowany
         $this->state(\Rumi\Orm\RecordInterface::STATE_SYNCED);
+
+        // wczytuje dane do obiektu
+        $this->load($data[0]);
 
         return $this;
     }

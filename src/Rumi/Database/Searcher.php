@@ -43,7 +43,6 @@ class Searcher implements \Rumi\Orm\SearcherInterface
 
         foreach ($id as $column => $value) {
             $this->searcher->column($column, false)->eq($value);
-            // $this->searcher->eq($column, $value);
         }
 
         return $this;
@@ -79,6 +78,7 @@ class Searcher implements \Rumi\Orm\SearcherInterface
 
         // wywoluje metode ustawiajaca from
         $this->searcher->from($target);
+
         return $this;
     }
 
@@ -116,7 +116,7 @@ class Searcher implements \Rumi\Orm\SearcherInterface
         );
     }
 
-    public function fetch($params = array())
+    public function fetch($params = array(), $options = array())
     {
         return $this->searcher->search();
     }

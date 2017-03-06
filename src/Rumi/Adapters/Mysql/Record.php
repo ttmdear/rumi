@@ -34,7 +34,7 @@ class Record extends \Rumi\Orm\Record
         }
 
         // ustawiam stan na zmodyfikowany
-        // $this->state(\Rumi\Orm\RecordInterface::STATE_MODYFIED);
+        $this->state(\Rumi\Orm\RecordInterface::STATE_MODYFIED);
 
         // odswiezam wiersz
         $this->reload();
